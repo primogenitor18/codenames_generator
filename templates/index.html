@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <form method="POST" action="/">
+      <div class="mb-3">
+        <select class="form-select" aria-label="Default select example" name="language">
+          <option value="ru" {% if language == "ru" %}selected{% endif %}>Russian</option>
+          <option value="en" {% if language == "en" %}selected{% endif %}>English</option>
+          <option value="uk" {% if language == "uk" %}selected{% endif %}>Ukrainian</option>
+          <option value="gk" {% if language == "gk" %}selected{% endif %}>Greek</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <select class="form-select" aria-label="Default select example" name="project">
+          <option value="project" {% if project == "project" %}selected{% endif %}>Project</option>
+          <option value="operation" {% if project == "operation" %}selected{% endif %}>Operation</option>
+        </select>
+      </div>
+      <div class="form-floating mb-3">
+        <input type="number" class="form-control" id="floatingInput" name="number" value={% if number %}{{ number }}{% else %}"1"{% endif %}>
+        <label for="floatingInput">Project number</label>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    {% if project_name %}
+    <div class="form-floating mb-3">
+      <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextareaDisabled" disabled>{{ project_name }}</textarea>
+      <label for="floatingTextareaDisabled">Project name</label>
+    </div>
+    {% endif %}
+  </body>
+</html>
