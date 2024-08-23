@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
-from typing import Annotated
+from typing import Annotated, Literal
+import traceback
 
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
@@ -9,6 +10,7 @@ from transliterate import translit
 from transliterate.exceptions import LanguagePackNotFound
 
 from codenames import gen_word, load_words, Words
+from vocabulary import vocabulary
 
 
 @asynccontextmanager
@@ -42,20 +44,20 @@ async def index_handler(request: Request):
 async def index_form_handler(
     request: Request,
     language: Annotated[str, Form()],
-    project: Annotated[str, Form()],
+    project: Annotated[Literal["project", "operation"], Form()],
     number: Annotated[int, Form()],
 ):
-    gen_name = await gen_word(request.app.words)
-    project_name = f"{project}_{gen_name}"
+    project_name = await gen_word(request.app.words)
+    _project_type = vocabulary.get(project, {}).get(language, "project")
     try:
         project_name = translit(project_name, language)
     except LanguagePackNotFound:
-        pass
+        print(traceback.format_exc())
     return templates.TemplateResponse(
         request=request,
         name="index.html",
         context={
-            "project_name": f"{project_name}_{number}",
+            "project_name": f"{_project_type}_{project_name}_{number}",
             "language": language,
             "project": project,
             "number": number,
