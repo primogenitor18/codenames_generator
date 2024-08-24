@@ -1,8 +1,14 @@
-from typing import List
+from typing import List, Literal
 import itertools
 import random
 import aiofiles
 from dataclasses import dataclass
+import traceback
+
+from transliterate import translit
+from transliterate.exceptions import LanguagePackNotFound
+
+from vocabulary import vocabulary
 
 
 @dataclass
@@ -28,4 +34,19 @@ async def gen_word(words: Words) -> str:
         noun = random.choices(words.nouns, cum_weights=words.nouns_weights)[0]
         if len(adj) >= 3 and len(noun) >= 3:
             break
-    return f"{adj}_{noun}"
+    return adj, noun
+
+
+async def gen_name(
+    words: Words,
+    language: str,
+    project: Literal["project", "operation"],
+    number: int,
+) -> str:
+    adj, noun = await gen_word(words)
+    _project_type = vocabulary.get(project, {}).get(language, "project")
+    try:
+        project_name = translit(f"{adj} {noun}", language)
+    except LanguagePackNotFound:
+        print(traceback.format_exc())
+    return f"{_project_type} {project_name} {number}"

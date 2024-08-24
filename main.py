@@ -1,16 +1,11 @@
 from contextlib import asynccontextmanager
 from typing import Annotated, Literal
-import traceback
 
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from transliterate import translit
-from transliterate.exceptions import LanguagePackNotFound
-
-from codenames import gen_word, load_words, Words
-from vocabulary import vocabulary
+from codenames import load_words, Words, gen_name
 
 
 @asynccontextmanager
@@ -47,17 +42,12 @@ async def index_form_handler(
     project: Annotated[Literal["project", "operation"], Form()],
     number: Annotated[int, Form()],
 ):
-    project_name = await gen_word(request.app.words)
-    _project_type = vocabulary.get(project, {}).get(language, "project")
-    try:
-        project_name = translit(project_name, language)
-    except LanguagePackNotFound:
-        print(traceback.format_exc())
+    project_name = await gen_name(request.app.words, language, project, number)
     return templates.TemplateResponse(
         request=request,
         name="index.html",
         context={
-            "project_name": f"{_project_type}_{project_name}_{number}",
+            "project_name": project_name,
             "language": language,
             "project": project,
             "number": number,
